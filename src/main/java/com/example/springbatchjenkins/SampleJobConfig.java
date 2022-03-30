@@ -27,34 +27,34 @@ public class SampleJobConfig {
     @Bean
     public Job basicJob() {
         return jobBuilderFactory.get("basicJob")
-                .start(step1())
-                .build();
-    }
-    @Bean
-    public Step step1() {
-        return stepBuilderFactory.get("step1")
-                .tasklet((contribution, chunkContext) -> {
-                    String parameter = (String) chunkContext.getStepContext().getJobParameters().get("date");
-                    log.info("job parameter : {}", parameter);
-                    log.info("sample step Test1");
-                    return RepeatStatus.FINISHED;
-                })
+                .start(sampleStep2())
                 .build();
     }
 //    @Bean
-//    public Step sampleStep2() {
-//        return stepBuilderFactory.get("sampleStep2")
-//                .tasklet(sampleTasklet(null))
+//    public Step step1() {
+//        return stepBuilderFactory.get("step1")
+//                .tasklet((contribution, chunkContext) -> {
+//                    String parameter = (String) chunkContext.getStepContext().getJobParameters().get("date");
+//                    log.info("job parameter : {}", parameter);
+//                    log.info("sample step Test1");
+//                    return RepeatStatus.FINISHED;
+//                })
 //                .build();
 //    }
-//    @StepScope
-//    @Bean
-//    public Tasklet sampleTasklet(@Value("#{jobParameters['name']}") String name) {
-//        return (contribution, chunkContext) -> {
-//                    log.info("job parameter : {}", name);
-//                    log.info("sample step Test2");
-//                    return RepeatStatus.FINISHED;
-//                };
-//    }
+    @Bean
+    public Step sampleStep2() {
+        return stepBuilderFactory.get("sampleStep2")
+                .tasklet(sampleTasklet(null))
+                .build();
+    }
+    @StepScope
+    @Bean
+    public Tasklet sampleTasklet(@Value("#{jobParameters['date']}") String name) {
+        return (contribution, chunkContext) -> {
+                    log.info("job parameter : {}", name);
+                    log.info("sample step Test2");
+                    return RepeatStatus.FINISHED;
+                };
+    }
 
 }
