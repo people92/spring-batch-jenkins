@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.step.tasklet.Tasklet;
@@ -24,32 +25,36 @@ public class SampleJobConfig {
     }
 
     @Bean
-    public Job job() {
+    public Job basicJob() {
         return jobBuilderFactory.get("basicJob")
-                .start(sampleStep1())
+                .start(step1())
                 .build();
     }
     @Bean
-    public Step sampleStep1() {
-        return stepBuilderFactory.get("sampleStep1")
-                .tasklet(sampleTasklet(null))
-//                .tasklet((contribution, chunkContext) -> {
-//                    String parameter = (String) chunkContext.getStepContext()
-//                                    .getJobParameters().get("name");
-//                    log.info("job parameter : {}", parameter);
-//                    log.info("sample step Test1");
-//                    return RepeatStatus.FINISHED;
-//                })
-                .build();
-    }
-    @StepScope
-    @Bean
-    public Tasklet sampleTasklet(@Value("#{jobParameters['name']}") String name) {
-        return (contribution, chunkContext) -> {
-                    log.info("job parameter : {}", name);
+    public Step step1() {
+        return stepBuilderFactory.get("step1")
+                .tasklet((contribution, chunkContext) -> {
+                    String parameter = (String) chunkContext.getStepContext().getJobParameters().get("date");
+                    log.info("job parameter : {}", parameter);
                     log.info("sample step Test1");
                     return RepeatStatus.FINISHED;
-                };
+                })
+                .build();
     }
+//    @Bean
+//    public Step sampleStep2() {
+//        return stepBuilderFactory.get("sampleStep2")
+//                .tasklet(sampleTasklet(null))
+//                .build();
+//    }
+//    @StepScope
+//    @Bean
+//    public Tasklet sampleTasklet(@Value("#{jobParameters['name']}") String name) {
+//        return (contribution, chunkContext) -> {
+//                    log.info("job parameter : {}", name);
+//                    log.info("sample step Test2");
+//                    return RepeatStatus.FINISHED;
+//                };
+//    }
 
 }
