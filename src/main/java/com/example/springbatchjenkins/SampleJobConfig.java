@@ -27,7 +27,7 @@ public class SampleJobConfig {
     @Bean
     public Job basicJob() {
         return jobBuilderFactory.get("basicJob")
-                .start(sampleStep2())
+                .start(sampleStep2(null))
                 .build();
     }
 //    @Bean
@@ -42,19 +42,16 @@ public class SampleJobConfig {
 //                .build();
 //    }
     @Bean
-    public Step sampleStep2() {
+    @JobScope
+    public Step sampleStep2(@Value("#{jobParameters['date']}") String date) {
         return stepBuilderFactory.get("sampleStep2")
-                .tasklet(sampleTasklet(null))
-                .build();
-    }
-    @StepScope
-    @Bean
-    public Tasklet sampleTasklet(@Value("#{jobParameters['date']}") String name) {
-        return (contribution, chunkContext) -> {
-                    log.info("job parameter : {}", name);
+                .tasklet((contribution, chunkContext) -> {
+                    log.info("job parameter : {}", date);
                     log.info("sample step Test2");
                     return RepeatStatus.FINISHED;
-                };
+                })
+                .build();
     }
+
 
 }
