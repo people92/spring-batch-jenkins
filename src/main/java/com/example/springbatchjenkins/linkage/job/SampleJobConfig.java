@@ -1,46 +1,39 @@
-package com.example.springbatchjenkins;
+package com.example.springbatchjenkins.linkage.job;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import static com.example.springbatchjenkins.linkage.job.SampleJobConfig.JOB_NAME;
+
+
 @Slf4j
 @Configuration
+@RequiredArgsConstructor
+@ConditionalOnProperty(name = "spring.batch.job.names", havingValue = JOB_NAME)
 public class SampleJobConfig {
+
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
 
-    public SampleJobConfig(JobBuilderFactory jobBuilderFactory, StepBuilderFactory stepBuilderFactory) {
-        this.jobBuilderFactory = jobBuilderFactory;
-        this.stepBuilderFactory = stepBuilderFactory;
-    }
+    public static final String JOB_NAME = "sampleJob";
 
     @Bean
-    public Job basicJob() {
-        return jobBuilderFactory.get("basicJob")
+    public Job sampleJob() {
+        return jobBuilderFactory.get(JOB_NAME)
                 .start(sampleStep2(null))
                 .build();
     }
-//    @Bean
-//    public Step step1() {
-//        return stepBuilderFactory.get("step1")
-//                .tasklet((contribution, chunkContext) -> {
-//                    String parameter = (String) chunkContext.getStepContext().getJobParameters().get("date");
-//                    log.info("job parameter : {}", parameter);
-//                    log.info("sample step Test1");
-//                    return RepeatStatus.FINISHED;
-//                })
-//                .build();
-//    }
+
     @Bean
     @JobScope
     public Step sampleStep2(@Value("#{jobParameters['date']}") String date) {
@@ -52,6 +45,4 @@ public class SampleJobConfig {
                 })
                 .build();
     }
-
-
 }
